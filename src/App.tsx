@@ -165,12 +165,17 @@ export default function App() {
     mqttServiceRef.current?.updateConfig(mqttConfig);
   }, [mqttConfig]);
 
-  // Handle landmarks detected from camera
+  // Handle landmarks detected from camera or action demo
   const handleLandmarksDetected = useCallback(
-    (landmarks: PoseLandmark3D[], algorithm: TrackingAlgorithm, isMirrored?: boolean) => {
+    (
+      landmarks: PoseLandmark3D[],
+      algorithm: TrackingAlgorithm,
+      isMirrored?: boolean,
+      directJoints?: ProcessedJoints
+    ) => {
       setIsTrackingActive(true);
 
-      const solvedJoints = calculateJointAngles(landmarks, !!isMirrored);
+      const solvedJoints = directJoints ?? calculateJointAngles(landmarks, !!isMirrored);
       setJoints(solvedJoints);
 
       setMotors(prevMotors => {
@@ -219,11 +224,42 @@ export default function App() {
   const handleSelectModel = (model: RobotModelType, recommendedParams: RobotArmParams) => {
     setCurrentModel(model);
     setArmParams(recommendedParams);
+    setMotors(createDefaultMotors(model));
+    if (model === 'industrial_6axis') {
+      setCurrentAction('palletizing_6axis');
+    } else if (model === 'scara_4axis') {
+      setCurrentAction('scara_pcb_assembly');
+    }
   };
 
-  // Switch Practical Action
+  // Switch Practical Action with automatic model linkage
   const handleSelectAction = (act: PracticalActionType) => {
     setCurrentAction(act);
+
+    // Automatically switch robot model and motors to match the action!
+    if (act === 'palletizing_6axis' || act === 'welding_seam_6axis') {
+      if (currentModel !== 'industrial_6axis') {
+        const meta = OPEN_SOURCE_ROBOTS.find(r => r.id === 'industrial_6axis')!;
+        setCurrentModel('industrial_6axis');
+        setArmParams(meta.recommendedParams);
+        setMotors(createDefaultMotors('industrial_6axis'));
+      }
+    } else if (act === 'scara_pcb_assembly' || act === 'scara_sorting') {
+      if (currentModel !== 'scara_4axis') {
+        const meta = OPEN_SOURCE_ROBOTS.find(r => r.id === 'scara_4axis')!;
+        setCurrentModel('scara_4axis');
+        setArmParams(meta.recommendedParams);
+        setMotors(createDefaultMotors('scara_4axis'));
+      }
+    } else {
+      // Humanoid actions: if currently on an industrial manipulator, switch back to humanoid twin
+      if (currentModel === 'industrial_6axis' || currentModel === 'scara_4axis') {
+        const meta = OPEN_SOURCE_ROBOTS.find(r => r.id === 'unitree_g1')!;
+        setCurrentModel('unitree_g1');
+        setArmParams(meta.recommendedParams);
+        setMotors(createDefaultMotors('unitree_g1'));
+      }
+    }
   };
 
   // Manual motor zero calibration

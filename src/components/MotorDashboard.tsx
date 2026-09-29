@@ -27,8 +27,21 @@ export const MotorDashboard: React.FC<MotorDashboardProps> = ({
 }) => {
   const [filterGroup, setFilterGroup] = useState<'all' | 'arms' | 'torso_neck' | 'legs'>('all');
 
+  const is6Axis = motors.length === 6;
+  const isScara = motors.length === 4;
+
   const filteredMotors = motors.filter(m => {
     if (filterGroup === 'all') return true;
+    if (is6Axis) {
+      if (filterGroup === 'arms') return m.id === 'J1_BASE' || m.id === 'J2_SHOULDER' || m.id === 'J3_ELBOW';
+      if (filterGroup === 'torso_neck') return m.id === 'J4_WRIST1' || m.id === 'J5_WRIST2' || m.id === 'J6_TOOL';
+      return true;
+    }
+    if (isScara) {
+      if (filterGroup === 'arms') return m.id === 'SCARA_J1' || m.id === 'SCARA_J2';
+      if (filterGroup === 'torso_neck') return m.id === 'SCARA_J3_Z' || m.id === 'SCARA_J4_R';
+      return true;
+    }
     if (filterGroup === 'arms') return m.id.startsWith('L_M') || m.id.startsWith('R_M');
     if (filterGroup === 'torso_neck') return m.id.startsWith('C_M');
     if (filterGroup === 'legs') return m.id.startsWith('L_L') || m.id.startsWith('R_L');
@@ -45,20 +58,28 @@ export const MotorDashboard: React.FC<MotorDashboardProps> = ({
           </div>
           <div>
             <div className="text-xs font-semibold text-slate-100 flex items-center gap-2">
-              全身关节与电机动力学监控
+              {is6Axis
+                ? '6 轴工业机械手伺服动力学监控'
+                : isScara
+                ? 'SCARA 4 轴机械手动力学监控'
+                : '全身关节与电机动力学监控'}
               <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-slate-800 text-cyan-400 border border-slate-700">
                 {motors.length} 轴
               </span>
             </div>
             <div className="text-[10px] text-slate-400 font-mono">
-              双臂(12) + 躯干与头颈(6) + 双腿下肢(8)
+              {is6Axis
+                ? '主轴(J1-J3) + 腕部及工具法兰(J4-J6)'
+                : isScara
+                ? '平面回转(J1-J2) + Z轴升降花键与旋转(J3-J4)'
+                : '双臂(12) + 躯干与头颈(6) + 双腿下肢(8)'}
             </div>
           </div>
         </div>
 
         <button
           onClick={onZeroAllMotors}
-          title="一键将全部 26 轴伺服电机位置与编码器归零标定"
+          title={`一键将全部 ${motors.length} 轴伺服电机位置与编码器归零标定`}
           className="px-2 py-1 rounded-md bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700 text-xs font-medium flex items-center gap-1 transition shadow-sm"
         >
           <RotateCcw className="w-3.5 h-3.5 text-cyan-400" />
@@ -68,26 +89,68 @@ export const MotorDashboard: React.FC<MotorDashboardProps> = ({
 
       {/* Filter Tabs */}
       <div className="px-3 py-1.5 border-b border-slate-800 bg-slate-950/30 flex gap-1">
-        {[
-          { id: 'all', label: '全部', count: motors.length },
-          { id: 'arms', label: '双臂', count: 12 },
-          { id: 'torso_neck', label: '腰颈', count: 6 },
-          { id: 'legs', label: '双腿', count: 8 },
-        ].map(tab => (
-          <button
-            key={tab.id}
-            onClick={() => setFilterGroup(tab.id as any)}
-            title={`筛选${tab.label}驱动关节 (${tab.count} 轴)`}
-            className={`flex-1 py-1 text-xs font-medium rounded transition flex items-center justify-center gap-1 ${
-              filterGroup === tab.id
-                ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 font-semibold'
-                : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60'
-            }`}
-          >
-            <span>{tab.label}</span>
-            <span className="text-[10px] opacity-75 font-mono">({tab.count})</span>
-          </button>
-        ))}
+        {is6Axis ? (
+          [
+            { id: 'all', label: '全部', count: 6 },
+            { id: 'arms', label: '主轴 J1-J3', count: 3 },
+            { id: 'torso_neck', label: '腕部 J4-J6', count: 3 },
+          ].map(tab => (
+            <button
+              key={tab.id}
+              onClick={() => setFilterGroup(tab.id as any)}
+              title={`筛选${tab.label}驱动关节 (${tab.count} 轴)`}
+              className={`flex-1 py-1 text-xs font-medium rounded transition flex items-center justify-center gap-1 ${
+                filterGroup === tab.id
+                  ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 font-semibold'
+                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60'
+              }`}
+            >
+              <span>{tab.label}</span>
+              <span className="text-[10px] opacity-75 font-mono">({tab.count})</span>
+            </button>
+          ))
+        ) : isScara ? (
+          [
+            { id: 'all', label: '全部', count: 4 },
+            { id: 'arms', label: '平面 J1-J2', count: 2 },
+            { id: 'torso_neck', label: '升降 J3-J4', count: 2 },
+          ].map(tab => (
+            <button
+              key={tab.id}
+              onClick={() => setFilterGroup(tab.id as any)}
+              title={`筛选${tab.label}驱动关节 (${tab.count} 轴)`}
+              className={`flex-1 py-1 text-xs font-medium rounded transition flex items-center justify-center gap-1 ${
+                filterGroup === tab.id
+                  ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 font-semibold'
+                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60'
+              }`}
+            >
+              <span>{tab.label}</span>
+              <span className="text-[10px] opacity-75 font-mono">({tab.count})</span>
+            </button>
+          ))
+        ) : (
+          [
+            { id: 'all', label: '全部', count: motors.length },
+            { id: 'arms', label: '双臂', count: 12 },
+            { id: 'torso_neck', label: '腰颈', count: 6 },
+            { id: 'legs', label: '双腿', count: 8 },
+          ].map(tab => (
+            <button
+              key={tab.id}
+              onClick={() => setFilterGroup(tab.id as any)}
+              title={`筛选${tab.label}驱动关节 (${tab.count} 轴)`}
+              className={`flex-1 py-1 text-xs font-medium rounded transition flex items-center justify-center gap-1 ${
+                filterGroup === tab.id
+                  ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 font-semibold'
+                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60'
+              }`}
+            >
+              <span>{tab.label}</span>
+              <span className="text-[10px] opacity-75 font-mono">({tab.count})</span>
+            </button>
+          ))
+        )}
       </div>
 
       {/* Motor List */}

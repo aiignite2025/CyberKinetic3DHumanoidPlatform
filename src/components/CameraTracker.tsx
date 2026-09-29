@@ -10,9 +10,9 @@
 
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { FilesetResolver, PoseLandmarker } from '@mediapipe/tasks-vision';
-import { PoseLandmark3D, TrackingAlgorithm, PracticalActionType, YoloLiftingResult, YoloLiftingConfig } from '../types/robot';
+import { PoseLandmark3D, TrackingAlgorithm, PracticalActionType, YoloLiftingResult, YoloLiftingConfig, ProcessedJoints } from '../types/robot';
 import { MotionFilterPipeline } from '../utils/filters';
-import { POSE_LANDMARKS } from '../utils/kinematics';
+import { POSE_LANDMARKS, getPracticalActionJoints, getPracticalActionLandmarks } from '../utils/kinematics';
 import { PRACTICAL_ACTIONS } from '../data/openSourceRobots';
 import { Yolo3dPoseLifter } from '../utils/yolo3dLifting';
 import {
@@ -32,7 +32,12 @@ import {
 } from 'lucide-react';
 
 interface CameraTrackerProps {
-  onLandmarksDetected: (landmarks: PoseLandmark3D[], algorithm: TrackingAlgorithm, isMirrored?: boolean) => void;
+  onLandmarksDetected: (
+    landmarks: PoseLandmark3D[],
+    algorithm: TrackingAlgorithm,
+    isMirrored?: boolean,
+    directJoints?: ProcessedJoints
+  ) => void;
   selectedAlgorithm: TrackingAlgorithm;
   onAlgorithmChange: (algo: TrackingAlgorithm) => void;
   activePracticalAction?: PracticalActionType;
@@ -215,6 +220,156 @@ export const CameraTracker: React.FC<CameraTrackerProps> = ({
 
     // Generate action kinematics
     switch (action) {
+      case 'palletizing_6axis': {
+        // Standard 180° opposing industrial palletizing cycle (-90° left conveyor to +90° right pallet)
+        const pCycle = (t * 0.42) % 1.0;
+        let pAngle = -Math.PI / 2; // -90° left infeed conveyor
+        let reachY = 0;
+        let reachZ = -0.15;
+
+        if (pCycle < 0.20) {
+          // Descending to pick up box at left conveyor (J1 = -90°)
+          const p = pCycle / 0.20;
+          pAngle = -Math.PI / 2;
+          reachY = 0.16 * p;
+          reachZ = -0.12 - 0.12 * p;
+        } else if (pCycle < 0.32) {
+          // Clamping and lifting
+          pAngle = -Math.PI / 2;
+          const p = (pCycle - 0.20) / 0.12;
+          reachY = 0.16 * (1 - p);
+          reachZ = -0.24 + 0.08 * p;
+        } else if (pCycle < 0.65) {
+          // Full 180° S-curve transfer swing across from Left Conveyor (-90°) to Right Pallet (+90°)
+          const p = (pCycle - 0.32) / 0.33;
+          const smoothP = 0.5 * (1 - Math.cos(p * Math.PI));
+          pAngle = -Math.PI / 2 + Math.PI * smoothP; // Full 180° sweep (-PI/2 to +PI/2)
+          reachY = -0.04 * Math.sin(p * Math.PI);
+          reachZ = -0.16;
+        } else if (pCycle < 0.82) {
+          // Lowering to pallet stack and placing (J1 = +90°)
+          const p = (pCycle - 0.65) / 0.17;
+          pAngle = Math.PI / 2;
+          reachY = 0.14 * p;
+          reachZ = -0.16 - 0.08 * p;
+        } else {
+          // Retracting and returning 180° back to conveyor
+          const p = (pCycle - 0.82) / 0.18;
+          const smoothP = 0.5 * (1 - Math.cos(p * Math.PI));
+          pAngle = Math.PI / 2 - Math.PI * smoothP;
+          reachY = 0.14 * (1 - p);
+          reachZ = -0.24 + 0.10 * p;
+        }
+
+        const rad = 0.24;
+        rightElbow = {
+          x: rightShoulder.x + Math.sin(pAngle) * (rad * 0.5),
+          y: rightShoulder.y + 0.08 + reachY * 0.5,
+          z: reachZ * 0.6,
+        };
+        rightWrist = {
+          x: rightShoulder.x + Math.sin(pAngle) * rad,
+          y: rightShoulder.y + 0.16 + reachY,
+          z: reachZ,
+        };
+
+        // Left arm stabilizing as companion or reference
+        leftElbow = { x: leftShoulder.x + 0.04, y: leftShoulder.y + 0.12, z: -0.05 };
+        leftWrist = { x: leftShoulder.x + 0.06, y: leftShoulder.y + 0.18, z: -0.06 };
+        break;
+      }
+
+      case 'welding_seam_6axis': {
+        // Continuous smooth curved weld seam tracking (circular saddle curve)
+        const weldSpeed = t * 2.2;
+        const radius = 0.14;
+        const wx = Math.sin(weldSpeed) * radius;
+        const wz = -0.20 + Math.cos(weldSpeed) * (radius * 0.6);
+        const wy = 0.12 + Math.sin(weldSpeed * 2) * 0.03; // Saddle elevation change
+
+        rightElbow = {
+          x: rightShoulder.x - 0.03 + wx * 0.4,
+          y: rightShoulder.y + 0.06 + wy * 0.4,
+          z: wz * 0.5,
+        };
+        rightWrist = {
+          x: rightShoulder.x - 0.05 + wx,
+          y: rightShoulder.y + 0.14 + wy,
+          z: wz,
+        };
+
+        // Left arm ready at inspection position
+        leftElbow = { x: leftShoulder.x + 0.03, y: leftShoulder.y + 0.14, z: -0.08 };
+        leftWrist = { x: leftShoulder.x + 0.05, y: leftShoulder.y + 0.20, z: -0.10 };
+        break;
+      }
+
+      case 'scara_pcb_assembly': {
+        // Ultra high-speed SCARA pick & place cycle with Z-stroke
+        const scaraCycle = (t * 1.6) % 1.0;
+        let sAngle1 = 0;
+        let sZStroke = 0;
+
+        if (scaraCycle < 0.25) {
+          // Over Feeder Tray, plunging Z quill
+          sAngle1 = -0.40;
+          const p = Math.sin((scaraCycle / 0.25) * Math.PI);
+          sZStroke = 0.16 * p; // Fast downward plunge
+        } else if (scaraCycle < 0.50) {
+          // Fast planar swing to PCB board
+          const p = (scaraCycle - 0.25) / 0.25;
+          sAngle1 = -0.40 + 0.85 * p;
+          sZStroke = 0;
+        } else if (scaraCycle < 0.75) {
+          // Over PCB solder pad, placing and aligning theta
+          sAngle1 = 0.45;
+          const p = Math.sin(((scaraCycle - 0.50) / 0.25) * Math.PI);
+          sZStroke = 0.15 * p;
+        } else {
+          // Swing back to feeder
+          const p = (scaraCycle - 0.75) / 0.25;
+          sAngle1 = 0.45 - 0.85 * p;
+          sZStroke = 0;
+        }
+
+        const armR = 0.24;
+        rightElbow = {
+          x: rightShoulder.x + Math.sin(sAngle1 * 0.7) * (armR * 0.55),
+          y: rightShoulder.y + 0.04,
+          z: -0.14 + Math.cos(sAngle1 * 0.7) * 0.05,
+        };
+        rightWrist = {
+          x: rightShoulder.x + Math.sin(sAngle1) * armR,
+          y: rightShoulder.y + 0.08 + sZStroke,
+          z: -0.18 + Math.cos(sAngle1) * 0.08,
+        };
+
+        leftElbow = { x: leftShoulder.x + 0.03, y: leftShoulder.y + 0.15, z: 0 };
+        leftWrist = { x: leftShoulder.x + 0.01, y: leftShoulder.y + 0.20, z: 0 };
+        break;
+      }
+
+      case 'scara_sorting': {
+        // High-cadence conveyor sorting between left conveyor and right sorting bin
+        const sortPhase = Math.sin(t * 3.5);
+        const sortZ = Math.max(0, Math.sin(t * 7.0)) * 0.12;
+
+        rightElbow = {
+          x: rightShoulder.x + sortPhase * 0.08,
+          y: rightShoulder.y + 0.05,
+          z: -0.15,
+        };
+        rightWrist = {
+          x: rightShoulder.x + sortPhase * 0.18,
+          y: rightShoulder.y + 0.10 + sortZ,
+          z: -0.20,
+        };
+
+        leftElbow = { x: leftShoulder.x + 0.03, y: leftShoulder.y + 0.15, z: 0 };
+        leftWrist = { x: leftShoulder.x + 0.01, y: leftShoulder.y + 0.20, z: 0 };
+        break;
+      }
+
       case 'wipe_table': {
         // Horizontal table surface circular wiping (Lissajous)
         const wipeR = 0.11;
@@ -530,6 +685,7 @@ export const CameraTracker: React.FC<CameraTrackerProps> = ({
       const height = canvas.height;
 
       let rawLandmarks: PoseLandmark3D[] | null = null;
+      let demoActionJoints: ProcessedJoints | undefined = undefined;
 
       if (isCameraActive && videoRef.current && videoRef.current.readyState >= 2) {
         const video = videoRef.current;
@@ -579,7 +735,23 @@ export const CameraTracker: React.FC<CameraTrackerProps> = ({
         }
 
         demoTimeRef.current += (currentTime - lastTime);
-        rawLandmarks = generateDemoLandmarks(demoTimeRef.current, currentAction);
+        demoActionJoints = getPracticalActionJoints(currentAction, demoTimeRef.current);
+        rawLandmarks = getPracticalActionLandmarks(currentAction, demoTimeRef.current, demoActionJoints);
+
+        // Draw Action Name Banner on canvas
+        const currentMeta = PRACTICAL_ACTIONS.find(a => a.id === currentAction);
+        if (currentMeta) {
+          ctx.fillStyle = 'rgba(15, 23, 42, 0.85)';
+          ctx.fillRect(10, 10, width - 20, 24);
+          ctx.strokeStyle = 'rgba(245, 158, 11, 0.6)';
+          ctx.lineWidth = 1;
+          ctx.strokeRect(10, 10, width - 20, 24);
+
+          ctx.fillStyle = '#fbbf24';
+          ctx.font = 'bold 10px sans-serif';
+          ctx.textAlign = 'left';
+          ctx.fillText(`▶ 仿真演练: ${currentMeta.name.split(' (')[0]}`, 18, 26);
+        }
       } else {
         // Idle view
         ctx.fillStyle = '#060911';
@@ -604,7 +776,7 @@ export const CameraTracker: React.FC<CameraTrackerProps> = ({
       );
 
       const isMirroredFeed = isMirrored && isCameraActive;
-      onLandmarksDetected(smoothedLandmarks, selectedAlgorithm, isMirroredFeed);
+      onLandmarksDetected(smoothedLandmarks, selectedAlgorithm, isMirroredFeed, demoActionJoints);
 
       // Perform YOLO 2D->3D Lifting
       if (onYoloLiftingResult) {
@@ -757,6 +929,7 @@ export const CameraTracker: React.FC<CameraTrackerProps> = ({
     stopCamera();
     setCurrentAction(actId);
     setIsDemoMode(true);
+    demoTimeRef.current = 0;
     onSelectAction?.(actId);
   };
 

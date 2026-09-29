@@ -1,4 +1,12 @@
-export type RobotModelType = 'unitree_g1' | 'stanford_aloha' | 'fourier_gr1' | 'inmoov' | 'cyberkinetic' | 'custom';
+export type RobotModelType =
+  | 'unitree_g1'
+  | 'stanford_aloha'
+  | 'fourier_gr1'
+  | 'inmoov'
+  | 'cyberkinetic'
+  | 'industrial_6axis'
+  | 'scara_4axis'
+  | 'custom';
 
 export interface OpenSourceRobotMeta {
   id: RobotModelType;
@@ -10,6 +18,7 @@ export interface OpenSourceRobotMeta {
   openSourceType: string;
   githubUrl: string;
   description: string;
+  robotCategory?: 'humanoid' | 'industrial_arm' | 'scara';
   recommendedParams: RobotArmParams;
   colorScheme: {
     darkArmor: number;
@@ -24,6 +33,10 @@ export type PracticalActionType =
   | 'peg_in_hole'
   | 'handover'
   | 'wipe_table'
+  | 'palletizing_6axis'
+  | 'welding_seam_6axis'
+  | 'scara_pcb_assembly'
+  | 'scara_sorting'
   | 'estop_shield'
   | 'taichi'
   | 'wave'

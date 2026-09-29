@@ -70,12 +70,12 @@ export const PracticalActionsPanel: React.FC<PracticalActionsPanelProps> = ({
       {/* Category Tabs */}
       <div className="px-3 py-2 border-b border-slate-800 bg-slate-950/30 flex gap-1 overflow-x-auto text-[11px]">
         {[
-          { id: 'all', label: '全部', title: '全部 12 组标准任务' },
-          { id: 'industrial', label: '搬运', title: '工业物料双臂抓取与搬运' },
-          { id: 'teleop', label: '遥操作', title: 'Mobile ALOHA 桌面精细遥操作装配' },
-          { id: 'service', label: '服务', title: '商用迎宾送物与桌面清洁' },
-          { id: 'safety', label: '安全', title: '交叉双臂急停与安全防御' },
-          { id: 'benchmark', label: '基准', title: '全自由度多轴动力学与太极基准' },
+          { id: 'all', label: '全部', title: '全部 14 组标准任务' },
+          { id: 'industrial', label: '工业制造', title: '6轴码垛/弧焊与4轴SCARA贴片/分拣' },
+          { id: 'teleop', label: '精细遥操作', title: 'Mobile ALOHA 桌面精细遥操作装配' },
+          { id: 'service', label: '迎宾服务', title: '商用迎宾送物与桌面清洁' },
+          { id: 'safety', label: '安全急停', title: '交叉双臂急停与安全防御' },
+          { id: 'benchmark', label: '运动基准', title: '全自由度多轴动力学与太极基准' },
         ].map(cat => (
           <button
             key={cat.id}
@@ -148,14 +148,34 @@ export const PracticalActionsPanel: React.FC<PracticalActionsPanelProps> = ({
               }`}
             >
               <div className="space-y-1 pr-2">
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 flex-wrap">
                   <span className="text-xs font-semibold text-slate-100 flex items-center gap-1.5">
+                    {action.id === 'palletizing_6axis' && <Boxes className="w-3.5 h-3.5 text-amber-400" />}
+                    {action.id === 'welding_seam_6axis' && <Zap className="w-3.5 h-3.5 text-sky-400" />}
+                    {action.id === 'scara_pcb_assembly' && <Cpu className="w-3.5 h-3.5 text-emerald-400" />}
+                    {action.id === 'scara_sorting' && <Layers className="w-3.5 h-3.5 text-cyan-400" />}
                     {action.id === 'pick_place' && <Boxes className="w-3.5 h-3.5 text-cyan-400" />}
                     {action.id === 'peg_in_hole' && <HandMetal className="w-3.5 h-3.5 text-indigo-400" />}
                     {action.id === 'estop_shield' && <ShieldAlert className="w-3.5 h-3.5 text-red-400" />}
                     {action.id === 'taichi' && <Flame className="w-3.5 h-3.5 text-emerald-400" />}
                     {action.name}
                   </span>
+
+                  {(action.id === 'palletizing_6axis' || action.id === 'welding_seam_6axis') && (
+                    <span className="px-1.5 py-0.2 rounded text-[9px] font-mono bg-sky-500/20 text-sky-300 border border-sky-500/30">
+                      6轴关节臂
+                    </span>
+                  )}
+                  {(action.id === 'scara_pcb_assembly' || action.id === 'scara_sorting') && (
+                    <span className="px-1.5 py-0.2 rounded text-[9px] font-mono bg-cyan-500/20 text-cyan-300 border border-cyan-500/30">
+                      4轴SCARA
+                    </span>
+                  )}
+                  {action.category !== 'industrial' && (
+                    <span className="px-1.5 py-0.2 rounded text-[9px] font-mono bg-slate-800 text-slate-400 border border-slate-700">
+                      双臂人形
+                    </span>
+                  )}
                 </div>
 
                 <div className="text-[10px] text-slate-400 line-clamp-1">

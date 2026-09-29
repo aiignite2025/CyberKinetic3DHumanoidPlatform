@@ -151,9 +151,103 @@ export const OPEN_SOURCE_ROBOTS: OpenSourceRobotMeta[] = [
       glow: 0x00f0ff, // 赛博青核聚变光源
     },
   },
+  {
+    id: 'industrial_6axis',
+    name: 'Universal 6-Axis Arm',
+    alias: '通用标准 6 轴工业关节机械臂 (UR5e / KUKA 构型)',
+    creator: 'Universal Robots / ROS-Industrial',
+    country: '丹麦 / 国际开源体系',
+    dof: 6,
+    openSourceType: 'ROS2 ur_robot_driver / MoveIt2 / URDF CAD',
+    githubUrl: 'https://github.com/UniversalRobots/Universal_Robots_ROS2_Driver',
+    description: '工业制造与智慧产线应用最广的 6 自由度串联关节机械手标准构型（Base Yaw, Shoulder Pitch, Elbow Pitch, Wrist 1 Pitch, Wrist 2 Yaw, Wrist 3 Roll）。配备重型工业法兰与气动双指夹爪，支持高精度 3D 码垛、精密弧焊、机床上下料与去毛刺打磨。',
+    robotCategory: 'industrial_arm',
+    recommendedParams: {
+      upperArmLength: 0.42,
+      forearmLength: 0.38,
+      handLength: 0.18,
+      shoulderWidth: 0.32,
+      torsoHeight: 0.45,
+      gearRatio: 101,
+      maxAngularSpeed: 180,
+      dampingFactor: 1.0,
+      controlAlgorithm: 'critically_damped',
+      maxAcceleration: 360,
+      springStiffness: 9.0,
+    },
+    colorScheme: {
+      darkArmor: 0x242d3d, // 工业深青灰铸铝外壳
+      silverJoint: 0x0284c7, // 标志性 UR / KUKA 工业海蓝密封关节圈
+      accent: 0xf59e0b, // 亮黄警示安全反光条
+      glow: 0x38bdf8, // 示教器就绪状态指示灯
+    },
+  },
+  {
+    id: 'scara_4axis',
+    name: 'SCARA Industrial 4-Axis',
+    alias: '4 轴 SCARA 工业平面关节装配机器人',
+    creator: 'Epson / Yamaha / Dobot Open Architecture',
+    country: '日本 / 全球 3C 制造标准',
+    dof: 4,
+    openSourceType: 'ROS2 SCARA Kinematics / LinuxCNC / URDF',
+    githubUrl: 'https://github.com/ros-industrial/universal_robot',
+    description: '现代 3C 电子制造与晶圆半导体封测的核心生产力——SCARA（Selective Compliance Assembly Robot Arm）水平多关节机械手。具备水平 X-Y 平面内的高刚性柔顺装配，包含 Arm1 转角(J1)、Arm2 转角(J2)、Z 轴高速滚珠花键丝杠升降(J3)与末端 R 轴旋转(J4)。专为微秒级高速贴片、传送带视觉分拣与自动化螺钉紧固而生。',
+    robotCategory: 'scara',
+    recommendedParams: {
+      upperArmLength: 0.35,
+      forearmLength: 0.25,
+      handLength: 0.15,
+      shoulderWidth: 0.28,
+      torsoHeight: 0.50,
+      gearRatio: 50,
+      maxAngularSpeed: 300,
+      dampingFactor: 0.95,
+      controlAlgorithm: 'critically_damped',
+      maxAcceleration: 600,
+      springStiffness: 12.0,
+    },
+    colorScheme: {
+      darkArmor: 0xf8fafc, // 洁净室纯白聚酯静电喷涂
+      silverJoint: 0x06b6d4, // 高精度青色伺服盖板
+      accent: 0x334155, // 重型铸铁加重基座
+      glow: 0x10b981, // 洁净室运行就绪绿光
+    },
+  },
 ];
 
 export const PRACTICAL_ACTIONS: PracticalActionMeta[] = [
+  {
+    id: 'palletizing_6axis',
+    name: '6轴工业物料码垛与出入库 (Palletizing)',
+    category: 'industrial',
+    description: '标准 6 轴工业机械臂空间多层码垛轨迹：底座 J1 旋转转向进料传送带，肩部 J2 与肘部 J3 联动下探，末端气动夹爪闭合抓取箱体，平滑提升后回转至料盘托板，下放码垛并沿 Z 轴抽退，循环构筑整齐料堆。',
+    keyJoints: ['J1 Base Yaw', 'J2 Shoulder Pitch', 'J3 Elbow Pitch', 'J5 Wrist Pitch', 'J6 Flange Clamp'],
+    useCase: '重载箱体物流码垛、自动化仓储立库堆垛、纸箱分垛。',
+  },
+  {
+    id: 'welding_seam_6axis',
+    name: '6轴空间精密连续轨迹弧焊 (Arc Welding)',
+    category: 'industrial',
+    description: '6 轴机械臂末端焊枪沿空间 3D 复杂折线/圆弧工件焊缝保持恒定姿态角（Weld Angle 45°）平顺移动，腕部三轴联动保证焊枪姿态与行走速度均匀一致，消除熔深不均。',
+    keyJoints: ['J1-J6 6-Axis Continuous Coordinate Coordinated Interpolation'],
+    useCase: '汽车底盘车身焊接、钢结构高压管道封口、曲面激光熔覆。',
+  },
+  {
+    id: 'scara_pcb_assembly',
+    name: '4轴 SCARA 芯片高速贴片装配 (PCB Assembly)',
+    category: 'industrial',
+    description: '4 轴 SCARA 机械手在 0.35 秒内完成高节拍周期：J1/J2 关节水平平面超高速回转至料仓托盘上方，J3 轴高速丝杠垂直下冲 80mm 进行真空吸嘴取件，回弹上抬后摆向 PCB 焊盘位置，Z 轴精准下压贴片，J4 轴微旋转对齐引脚极性。',
+    keyJoints: ['SCARA J1/J2 Horizontal Sweep', 'J3 Z-axis High-speed Quill Plunge', 'J4 Theta Orientation'],
+    useCase: 'SMT 表面贴装、集成电路 IC 抓放、手机主板精密螺丝打紧。',
+  },
+  {
+    id: 'scara_sorting',
+    name: '4轴 SCARA 传送带高速视觉分拣 (Vision Sorting)',
+    category: 'industrial',
+    description: 'SCARA 平面多关节机械手配合流水线传送带视觉，高频左右摆臂将传送带流经的合格品与瑕疵品分别吸取并分发至左右两级料斗，呈现典型高加速度平顺柔顺动作。',
+    keyJoints: ['SCARA J1 Base Swing', 'J2 Elbow Flex', 'J3 Z Pick-up Stroke'],
+    useCase: '锂电池电芯高速分拣、医药安瓿瓶包装、食品流水线装盒。',
+  },
   {
     id: 'pick_place',
     name: '工业双臂物料抓取与搬运',

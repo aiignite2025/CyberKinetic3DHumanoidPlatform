@@ -38,10 +38,17 @@ export const OpenSourceModelsPanel: React.FC<OpenSourceModelsPanelProps> = ({
   customFileName,
 }) => {
   const [selectedMetaId, setSelectedMetaId] = useState<RobotModelType>(currentModel);
+  const [categoryFilter, setCategoryFilter] = useState<'all' | 'humanoid' | 'industrial_arm' | 'scara'>('all');
   const [isDragOver, setIsDragOver] = useState<boolean>(false);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   const activeMeta = OPEN_SOURCE_ROBOTS.find(r => r.id === selectedMetaId) || OPEN_SOURCE_ROBOTS[0];
+
+  const filteredRobots = OPEN_SOURCE_ROBOTS.filter(r => {
+    if (categoryFilter === 'all') return true;
+    if (categoryFilter === 'humanoid') return !r.robotCategory || r.robotCategory === 'humanoid';
+    return r.robotCategory === categoryFilter;
+  });
 
   const handleApplyModel = (meta: OpenSourceRobotMeta) => {
     setSelectedMetaId(meta.id);
@@ -74,28 +81,51 @@ export const OpenSourceModelsPanel: React.FC<OpenSourceModelsPanelProps> = ({
           </div>
           <div>
             <div className="text-xs font-semibold text-slate-100 flex items-center gap-2">
-              开源实用机器人模型库 (Open-Source Models)
+              开源工业与人形机器人模型库
             </div>
             <div className="text-[10px] text-slate-400 font-mono">
-              量产级人形机器人 URDF / 遥操作真机构型
+              通用人形双足 / 6轴工业臂 / 4轴SCARA
             </div>
           </div>
         </div>
 
         <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-cyan-950 text-cyan-400 border border-cyan-800/80">
-          5 款主流开源构型
+          {OPEN_SOURCE_ROBOTS.length} 款开源构型
         </span>
       </div>
 
       {/* Model Cards Carousel / Selector */}
       <div className="p-3 border-b border-slate-800 bg-slate-950/40 space-y-2">
-        <div className="text-[11px] font-semibold text-slate-400 flex items-center justify-between">
-          <span>选择开源真机模型构型:</span>
-          <span className="text-[10px] text-slate-500">点击切换 3D 外观与运动学参数</span>
+        <div className="flex items-center justify-between text-xs">
+          <span className="text-[11px] font-semibold text-slate-300">选择开源机器人构型:</span>
+          <span className="text-[10px] text-slate-500">点击切换 3D 动力学孪生</span>
+        </div>
+
+        {/* Category Tabs */}
+        <div className="flex gap-1 overflow-x-auto pb-1 text-[11px]">
+          {[
+            { id: 'all', label: '全部', count: OPEN_SOURCE_ROBOTS.length },
+            { id: 'humanoid', label: '人形机器人', count: 5 },
+            { id: 'industrial_arm', label: '6轴工业臂', count: 1 },
+            { id: 'scara', label: '4轴SCARA', count: 1 },
+          ].map(cat => (
+            <button
+              key={cat.id}
+              onClick={() => setCategoryFilter(cat.id as any)}
+              className={`px-2 py-0.5 rounded text-xs transition whitespace-nowrap flex items-center gap-1 ${
+                categoryFilter === cat.id
+                  ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 font-semibold'
+                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60'
+              }`}
+            >
+              <span>{cat.label}</span>
+              <span className="text-[10px] opacity-75 font-mono">({cat.count})</span>
+            </button>
+          ))}
         </div>
 
         <div className="grid grid-cols-1 gap-2">
-          {OPEN_SOURCE_ROBOTS.map(meta => {
+          {filteredRobots.map(meta => {
             const isCurrent = currentModel === meta.id;
             return (
               <div
@@ -247,6 +277,12 @@ export const OpenSourceModelsPanel: React.FC<OpenSourceModelsPanelProps> = ({
           </p>
           <p className="text-[10px] text-slate-400 leading-relaxed">
             2. <strong>全身高动态巡检首选</strong>：推荐选用 <strong>Unitree G1</strong> 构型，小惯量关节设计保证了摄像头高速动捕下的零延迟响应。
+          </p>
+          <p className="text-[10px] text-slate-400 leading-relaxed">
+            3. <strong>通用工业码垛与弧焊首选</strong>：推荐选用 <strong>Universal 6-Axis Arm</strong> 标准构型，具备完整的 6 自由度空间姿态欧拉角解算，适合高负载与复杂 3D 轨迹。
+          </p>
+          <p className="text-[10px] text-slate-400 leading-relaxed">
+            4. <strong>3C 电子贴片与高速分拣首选</strong>：推荐选用 <strong>SCARA Industrial 4-Axis</strong> 构型，平面高刚性搭配 Z 轴高速垂直插拔，节拍频率高、精度稳定。
           </p>
         </div>
       </div>

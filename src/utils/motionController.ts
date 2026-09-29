@@ -202,6 +202,7 @@ export class RobotJointMotionSmoother {
     register('leftShoulder.yaw', joints.leftShoulder.yaw);
     register('leftElbow', joints.leftElbow);
     register('leftWrist.pitch', joints.leftWrist.pitch);
+    register('leftWrist.roll', joints.leftWrist.roll);
     register('leftWrist.yaw', joints.leftWrist.yaw);
 
     register('rightShoulder.pitch', joints.rightShoulder.pitch);
@@ -209,6 +210,7 @@ export class RobotJointMotionSmoother {
     register('rightShoulder.yaw', joints.rightShoulder.yaw);
     register('rightElbow', joints.rightElbow);
     register('rightWrist.pitch', joints.rightWrist.pitch);
+    register('rightWrist.roll', joints.rightWrist.roll);
     register('rightWrist.yaw', joints.rightWrist.yaw);
 
     register('spineTilt', joints.spineTilt);
@@ -249,6 +251,7 @@ export class RobotJointMotionSmoother {
       case 'leftShoulder.yaw': return j.leftShoulder?.yaw ?? 0;
       case 'leftElbow': return j.leftElbow ?? 0;
       case 'leftWrist.pitch': return j.leftWrist?.pitch ?? 0;
+      case 'leftWrist.roll': return j.leftWrist?.roll ?? 0;
       case 'leftWrist.yaw': return j.leftWrist?.yaw ?? 0;
 
       case 'rightShoulder.pitch': return j.rightShoulder?.pitch ?? 0;
@@ -256,6 +259,7 @@ export class RobotJointMotionSmoother {
       case 'rightShoulder.yaw': return j.rightShoulder?.yaw ?? 0;
       case 'rightElbow': return j.rightElbow ?? 0;
       case 'rightWrist.pitch': return j.rightWrist?.pitch ?? 0;
+      case 'rightWrist.roll': return j.rightWrist?.roll ?? 0;
       case 'rightWrist.yaw': return j.rightWrist?.yaw ?? 0;
 
       case 'spineTilt': return j.spineTilt ?? 0;
@@ -302,7 +306,7 @@ export class RobotJointMotionSmoother {
       leftElbow: step('leftElbow'),
       leftWrist: {
         pitch: step('leftWrist.pitch'),
-        roll: 0,
+        roll: step('leftWrist.roll'),
         yaw: step('leftWrist.yaw'),
       },
 
@@ -314,7 +318,7 @@ export class RobotJointMotionSmoother {
       rightElbow: step('rightElbow'),
       rightWrist: {
         pitch: step('rightWrist.pitch'),
-        roll: 0,
+        roll: step('rightWrist.roll'),
         yaw: step('rightWrist.yaw'),
       },
 
