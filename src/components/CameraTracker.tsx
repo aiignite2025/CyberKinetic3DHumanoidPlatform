@@ -26,7 +26,9 @@ import {
   Layers,
   Sparkles,
   Bot,
-  PlayCircle
+  PlayCircle,
+  Play,
+  FlipHorizontal
 } from 'lucide-react';
 
 interface CameraTrackerProps {
@@ -794,15 +796,17 @@ export const CameraTracker: React.FC<CameraTrackerProps> = ({
           {isCameraActive ? (
             <button
               onClick={stopCamera}
+              title="关闭摄像头画面并释放视频流"
               className="px-2.5 py-1.5 rounded-lg bg-red-500/20 hover:bg-red-500/30 text-red-300 border border-red-500/30 text-xs font-medium flex items-center gap-1.5 transition"
             >
               <CameraOff className="w-3.5 h-3.5" />
-              <span>关闭摄像头</span>
+              <span>关闭相机</span>
             </button>
           ) : (
             <button
               onClick={startCamera}
               disabled={cameraLoading}
+              title="启动本机摄像头进行实时人体骨骼姿态捕捉"
               className="px-2.5 py-1.5 rounded-lg bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-semibold text-xs flex items-center gap-1.5 shadow-lg shadow-cyan-500/20 transition disabled:opacity-50"
             >
               {cameraLoading ? (
@@ -810,7 +814,7 @@ export const CameraTracker: React.FC<CameraTrackerProps> = ({
               ) : (
                 <Camera className="w-3.5 h-3.5" />
               )}
-              <span>开启摄像头</span>
+              <span>开启相机</span>
             </button>
           )}
         </div>
@@ -834,13 +838,15 @@ export const CameraTracker: React.FC<CameraTrackerProps> = ({
           <div className="absolute bottom-2.5 right-2.5 flex gap-1.5">
             <button
               onClick={() => setIsMirrored(!isMirrored)}
-              className={`px-2 py-1 rounded text-[10px] font-mono backdrop-blur-md border transition ${
+              title={isMirrored ? '关闭画面镜像' : '开启水平镜像翻转 (Mirror)'}
+              className={`px-2 py-1 rounded text-[10px] font-mono backdrop-blur-md border transition flex items-center gap-1 ${
                 isMirrored
                   ? 'bg-cyan-500/20 border-cyan-500/40 text-cyan-300'
-                  : 'bg-slate-900/80 border-slate-700 text-slate-400'
+                  : 'bg-slate-900/80 border-slate-700 text-slate-400 hover:text-slate-200'
               }`}
             >
-              镜像翻转
+              <FlipHorizontal className="w-3 h-3" />
+              <span>镜像</span>
             </button>
           </div>
         )}
@@ -904,16 +910,17 @@ export const CameraTracker: React.FC<CameraTrackerProps> = ({
         {/* Category Filter Chips */}
         <div className="flex gap-1 overflow-x-auto pb-1 text-[10px]">
           {[
-            { id: 'all', label: '全部' },
-            { id: 'industrial', label: '工业搬运' },
-            { id: 'teleop', label: '遥操作装配' },
-            { id: 'service', label: '服务递送' },
-            { id: 'safety', label: '安全急停' },
-            { id: 'benchmark', label: '动力学基准' },
+            { id: 'all', label: '全部', title: '全部 12 组实用实例动作' },
+            { id: 'industrial', label: '搬运', title: '工业物料双臂抓取与搬运' },
+            { id: 'teleop', label: '遥操作', title: 'Mobile ALOHA 桌面精细遥操作装配' },
+            { id: 'service', label: '服务', title: '迎宾挥手致意与桌面清理' },
+            { id: 'safety', label: '安全', title: '交叉双臂急停与防护姿态' },
+            { id: 'benchmark', label: '基准', title: '全轴动力学与太极运动基准' },
           ].map(c => (
             <button
               key={c.id}
               onClick={() => setActionCategory(c.id as any)}
+              title={c.title}
               className={`px-2 py-0.5 rounded whitespace-nowrap transition ${
                 actionCategory === c.id
                   ? 'bg-amber-500/20 text-amber-300 border border-amber-500/30 font-medium'
@@ -962,7 +969,10 @@ export const CameraTracker: React.FC<CameraTrackerProps> = ({
 
               <div className="flex items-center justify-between text-[9px] text-slate-500 font-mono pt-1 border-t border-slate-800/40">
                 <span className="truncate max-w-[200px]">涉及: {act.keyJoints.join(', ')}</span>
-                <span className="text-amber-400/80">点击演练</span>
+                <span className="text-amber-400/90 flex items-center gap-1 font-medium">
+                  <Play className="w-2.5 h-2.5 fill-current" />
+                  演练
+                </span>
               </div>
             </button>
           );

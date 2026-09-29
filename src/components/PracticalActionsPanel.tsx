@@ -70,16 +70,17 @@ export const PracticalActionsPanel: React.FC<PracticalActionsPanelProps> = ({
       {/* Category Tabs */}
       <div className="px-3 py-2 border-b border-slate-800 bg-slate-950/30 flex gap-1 overflow-x-auto text-[11px]">
         {[
-          { id: 'all', label: '全部' },
-          { id: 'industrial', label: '工业搬运' },
-          { id: 'teleop', label: '遥操作装配' },
-          { id: 'service', label: '商用服务' },
-          { id: 'safety', label: '安全防御' },
-          { id: 'benchmark', label: '动力学基准' },
+          { id: 'all', label: '全部', title: '全部 12 组标准任务' },
+          { id: 'industrial', label: '搬运', title: '工业物料双臂抓取与搬运' },
+          { id: 'teleop', label: '遥操作', title: 'Mobile ALOHA 桌面精细遥操作装配' },
+          { id: 'service', label: '服务', title: '商用迎宾送物与桌面清洁' },
+          { id: 'safety', label: '安全', title: '交叉双臂急停与安全防御' },
+          { id: 'benchmark', label: '基准', title: '全自由度多轴动力学与太极基准' },
         ].map(cat => (
           <button
             key={cat.id}
             onClick={() => setFilterCategory(cat.id as any)}
+            title={cat.title}
             className={`px-2 py-1 rounded transition whitespace-nowrap ${
               filterCategory === cat.id
                 ? 'bg-amber-500/20 text-amber-300 border border-amber-500/30 font-medium'
@@ -167,13 +168,15 @@ export const PracticalActionsPanel: React.FC<PracticalActionsPanelProps> = ({
                   e.stopPropagation();
                   onSelectAction(action.id);
                 }}
-                className={`px-2.5 py-1 rounded text-xs font-semibold transition shrink-0 ${
+                title={isCurrent ? `当前正在演练: ${action.name}` : `点击执行: ${action.name}`}
+                className={`px-2 py-1 rounded text-xs font-semibold transition shrink-0 flex items-center gap-1 ${
                   isCurrent
-                    ? 'bg-amber-500 text-slate-950'
+                    ? 'bg-amber-500 text-slate-950 shadow-sm shadow-amber-500/20'
                     : 'bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700'
                 }`}
               >
-                {isCurrent ? '演练中' : '执行'}
+                <Play className="w-3 h-3 fill-current" />
+                <span>{isCurrent ? '演练中' : '执行'}</span>
               </button>
             </div>
           );

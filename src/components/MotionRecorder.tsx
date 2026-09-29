@@ -146,10 +146,11 @@ export const MotionRecorder: React.FC<MotionRecorderProps> = ({
 
         <button
           onClick={onCalibrateZero}
-          className="px-2 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-medium flex items-center gap-1 transition"
+          title="校准并重置全部关节为 T-Pose 零位"
+          className="px-2 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700 text-xs font-medium flex items-center gap-1 transition"
         >
-          <RotateCcw className="w-3 h-3 text-cyan-400" />
-          <span>T-Pose 标定</span>
+          <RotateCcw className="w-3.5 h-3.5 text-cyan-400" />
+          <span>标定</span>
         </button>
       </div>
 
@@ -160,38 +161,42 @@ export const MotionRecorder: React.FC<MotionRecorderProps> = ({
             {isRecording ? (
               <button
                 onClick={stopRecord}
-                className="px-3 py-1.5 rounded-lg bg-red-500 hover:bg-red-400 text-white font-semibold text-xs flex items-center gap-1.5 shadow-lg shadow-red-500/20 transition"
+                title="停止当前动作轨迹录制"
+                className="px-2.5 py-1.5 rounded-lg bg-red-500 hover:bg-red-400 text-white font-semibold text-xs flex items-center gap-1.5 shadow-lg shadow-red-500/20 transition"
               >
                 <Square className="w-3.5 h-3.5 fill-current" />
-                <span>停止录制</span>
+                <span>停止</span>
               </button>
             ) : (
               <button
                 onClick={startRecord}
                 disabled={isPlaying}
-                className="px-3 py-1.5 rounded-lg bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-semibold text-xs flex items-center gap-1.5 shadow-lg shadow-cyan-500/20 transition disabled:opacity-50"
+                title="开始录制机器人动作示教轨迹 (30 FPS)"
+                className="px-2.5 py-1.5 rounded-lg bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-semibold text-xs flex items-center gap-1.5 shadow-lg shadow-cyan-500/20 transition disabled:opacity-50"
               >
                 <CircleDot className="w-3.5 h-3.5 fill-current" />
-                <span>开始录制动作</span>
+                <span>录制</span>
               </button>
             )}
 
             {isPlaying ? (
               <button
                 onClick={stopPlayback}
-                className="px-3 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 font-semibold text-xs flex items-center gap-1.5 transition"
+                title="停止轨迹回放"
+                className="px-2.5 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 font-semibold text-xs flex items-center gap-1.5 transition"
               >
                 <Square className="w-3.5 h-3.5 fill-current" />
-                <span>停止回放</span>
+                <span>停止</span>
               </button>
             ) : (
               <button
                 onClick={playRecording}
                 disabled={recordedFrames.length === 0 || isRecording}
-                className="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold text-xs flex items-center gap-1.5 border border-slate-700 transition disabled:opacity-40"
+                title={recordedFrames.length === 0 ? '暂无录制帧' : `回放已录制的 ${recordedFrames.length} 帧动作轨迹`}
+                className="px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold text-xs flex items-center gap-1.5 border border-slate-700 transition disabled:opacity-40"
               >
-                <Play className="w-3.5 h-3.5 fill-current" />
-                <span>回放动作</span>
+                <Play className="w-3.5 h-3.5 fill-current text-cyan-400" />
+                <span>回放</span>
               </button>
             )}
           </div>

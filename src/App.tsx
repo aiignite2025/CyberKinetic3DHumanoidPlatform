@@ -330,43 +330,41 @@ export default function App() {
         </div>
 
         {/* Center Quick Chips */}
-        <div className="hidden md:flex items-center gap-2 bg-slate-950/80 p-1 rounded-lg border border-slate-800/80 text-xs">
-          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded bg-slate-900 text-slate-300 border border-slate-800">
-            <Bot className="w-3.5 h-3.5 text-cyan-400" />
-            <span className="text-slate-400">机型:</span>
-            <span className="font-semibold text-cyan-300">{activeMeta.name}</span>
+        <div className="hidden lg:flex items-center gap-1.5 bg-slate-950/80 p-1 rounded-lg border border-slate-800/80 text-xs">
+          <div className="flex items-center gap-1.5 px-2 py-1 rounded bg-slate-900 text-slate-300 border border-slate-800/80" title={`当前人形机型: ${activeMeta.name}`}>
+            <Bot className="w-3.5 h-3.5 text-cyan-400 shrink-0" />
+            <span className="font-semibold text-cyan-300 truncate max-w-[120px]">{activeMeta.name}</span>
           </div>
 
-          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded bg-slate-900 text-slate-300 border border-slate-800">
-            <Activity className="w-3.5 h-3.5 text-amber-400" />
-            <span className="text-slate-400">动作:</span>
-            <span className="font-semibold text-amber-300">{activeActionMeta.name}</span>
+          <div className="flex items-center gap-1.5 px-2 py-1 rounded bg-slate-900 text-slate-300 border border-slate-800/80" title={`当前任务动作: ${activeActionMeta.name}`}>
+            <Activity className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+            <span className="font-semibold text-amber-300 truncate max-w-[130px]">{activeActionMeta.name}</span>
           </div>
 
-          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded bg-slate-900 text-slate-300 border border-slate-800">
-            <Radio className="w-3.5 h-3.5 text-emerald-400" />
-            <span className="text-slate-400">MQTT:</span>
+          <div className="flex items-center gap-1.5 px-2 py-1 rounded bg-slate-900 text-slate-300 border border-slate-800/80" title="MQTT 遥控桥接状态">
+            <Radio className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
             <span className={`font-semibold ${mqttConfig.connected ? 'text-emerald-400' : 'text-slate-400'}`}>
               {mqttConfig.connected ? (isMqttSimulated ? '硬件仿真' : '已桥接') : '待机'}
             </span>
           </div>
         </div>
 
-        {/* Right Tab Switcher */}
+        {/* Right Tab Switcher - Clean & Scannable */}
         <div className="flex items-center gap-1 bg-slate-950 p-1 rounded-lg border border-slate-800">
           <button
             onClick={() => {
               setActiveTab('models');
               setIsRightPanelCollapsed(false);
             }}
+            title="开源人形机器人构型库 (G1, ALOHA, GR-1, InMoov)"
             className={`px-2.5 py-1 text-xs font-medium rounded-md transition flex items-center gap-1.5 ${
               activeTab === 'models' && !isRightPanelCollapsed
-                ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/30'
-                : 'text-slate-400 hover:text-slate-200'
+                ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 font-semibold shadow-sm'
+                : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900/60'
             }`}
           >
             <Bot className="w-3.5 h-3.5" />
-            <span>开源机型</span>
+            <span>机型</span>
           </button>
 
           <button
@@ -374,14 +372,15 @@ export default function App() {
               setActiveTab('actions');
               setIsRightPanelCollapsed(false);
             }}
+            title="具身智能实例动作库与基准测试 (Waving, ALOHA, Table Wipe, Taichi)"
             className={`px-2.5 py-1 text-xs font-medium rounded-md transition flex items-center gap-1.5 ${
               activeTab === 'actions' && !isRightPanelCollapsed
-                ? 'bg-amber-500/20 text-amber-300 border border-amber-500/30'
-                : 'text-slate-400 hover:text-slate-200'
+                ? 'bg-amber-500/20 text-amber-300 border border-amber-500/30 font-semibold shadow-sm'
+                : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900/60'
             }`}
           >
-            <Activity className="w-3.5 h-3.5" />
-            <span>实例动作</span>
+            <Activity className="w-3.5 h-3.5 text-amber-400" />
+            <span>动作</span>
           </button>
 
           <button
@@ -389,14 +388,15 @@ export default function App() {
               setActiveTab('motors');
               setIsRightPanelCollapsed(false);
             }}
+            title="26轴伺服电机动力学与力矩监控"
             className={`px-2.5 py-1 text-xs font-medium rounded-md transition flex items-center gap-1.5 ${
               activeTab === 'motors' && !isRightPanelCollapsed
-                ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/30'
-                : 'text-slate-400 hover:text-slate-200'
+                ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 font-semibold shadow-sm'
+                : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900/60'
             }`}
           >
-            <Gauge className="w-3.5 h-3.5" />
-            <span className="hidden xl:inline">电机监控</span>
+            <Gauge className="w-3.5 h-3.5 text-cyan-400" />
+            <span>电机</span>
           </button>
 
           <button
@@ -404,14 +404,15 @@ export default function App() {
               setActiveTab('params');
               setIsRightPanelCollapsed(false);
             }}
+            title="连杆结构几何与运动平滑阻尼算法 (二阶临界阻尼 / Ruckig S 曲线)"
             className={`px-2.5 py-1 text-xs font-medium rounded-md transition flex items-center gap-1.5 ${
               activeTab === 'params' && !isRightPanelCollapsed
-                ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/30'
-                : 'text-slate-400 hover:text-slate-200'
+                ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 font-semibold shadow-sm'
+                : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900/60'
             }`}
           >
-            <Sliders className="w-3.5 h-3.5" />
-            <span className="hidden xl:inline">臂长结构</span>
+            <Sliders className="w-3.5 h-3.5 text-cyan-400" />
+            <span>阻尼</span>
           </button>
 
           <button
@@ -419,14 +420,15 @@ export default function App() {
               setActiveTab('mqtt');
               setIsRightPanelCollapsed(false);
             }}
+            title="MQTT 遥测数据流与远程遥操作配置"
             className={`px-2.5 py-1 text-xs font-medium rounded-md transition flex items-center gap-1.5 ${
               activeTab === 'mqtt' && !isRightPanelCollapsed
-                ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/30'
-                : 'text-slate-400 hover:text-slate-200'
+                ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 font-semibold shadow-sm'
+                : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900/60'
             }`}
           >
-            <Radio className="w-3.5 h-3.5" />
-            <span className="hidden xl:inline">二期MQTT</span>
+            <Radio className="w-3.5 h-3.5 text-emerald-400" />
+            <span>MQTT</span>
           </button>
 
           <button
@@ -434,14 +436,15 @@ export default function App() {
               setActiveTab('recorder');
               setIsRightPanelCollapsed(false);
             }}
+            title="示教动作轨迹录制与回放"
             className={`px-2.5 py-1 text-xs font-medium rounded-md transition flex items-center gap-1.5 ${
               activeTab === 'recorder' && !isRightPanelCollapsed
-                ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/30'
-                : 'text-slate-400 hover:text-slate-200'
+                ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 font-semibold shadow-sm'
+                : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900/60'
             }`}
           >
-            <Compass className="w-3.5 h-3.5" />
-            <span className="hidden xl:inline">示教录制</span>
+            <Compass className="w-3.5 h-3.5 text-cyan-400" />
+            <span>录制</span>
           </button>
         </div>
       </header>

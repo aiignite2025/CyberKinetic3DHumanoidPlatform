@@ -944,54 +944,51 @@ export const ThreeRobotViewer: React.FC<ThreeRobotViewerProps> = ({
         </div>
 
         {/* Viewport Control Buttons & Studio Lighting Rig Switcher */}
-        <div className="flex items-center gap-1.5 pointer-events-auto bg-slate-900/90 backdrop-blur-md p-1.5 rounded-lg border border-slate-700/80 shadow-2xl">
-          {/* Lighting Rig Selector */}
-          <div className="flex items-center bg-slate-950 p-0.5 rounded border border-slate-800 mr-1">
+        <div className="flex items-center gap-1 pointer-events-auto bg-slate-900/90 backdrop-blur-md p-1 rounded-lg border border-slate-700/80 shadow-2xl">
+          {/* Lighting Rig Selector - Icon Only */}
+          <div className="flex items-center bg-slate-950 p-0.5 rounded border border-slate-800">
             <button
               onClick={() => setLightingPreset('studio_bright')}
-              title="影棚高亮模式 (Crisp Studio)"
-              className={`px-2 py-1 text-[11px] font-medium rounded flex items-center gap-1 transition ${
+              title="影棚高光模式 (Studio Bright 3.4x)"
+              className={`p-1.5 rounded transition ${
                 lightingPreset === 'studio_bright'
-                  ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40 font-bold'
+                  ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40 shadow-sm'
                   : 'text-slate-400 hover:text-slate-200'
               }`}
             >
-              <Sun className="w-3 h-3 text-amber-400" />
-              <span>影棚高亮</span>
+              <Sun className="w-3.5 h-3.5 text-amber-400" />
             </button>
 
             <button
               onClick={() => setLightingPreset('cyberpunk')}
               title="赛博轮廓模式 (Cyber Glow)"
-              className={`px-2 py-1 text-[11px] font-medium rounded flex items-center gap-1 transition ${
+              className={`p-1.5 rounded transition ${
                 lightingPreset === 'cyberpunk'
-                  ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 font-bold'
+                  ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 shadow-sm'
                   : 'text-slate-400 hover:text-slate-200'
               }`}
             >
-              <Sparkles className="w-3 h-3 text-cyan-400" />
-              <span>赛博轮廓</span>
+              <Sparkles className="w-3.5 h-3.5 text-cyan-400" />
             </button>
 
             <button
               onClick={() => setLightingPreset('natural_daylight')}
-              title="自然日光模式 (5500K)"
-              className={`px-2 py-1 text-[11px] font-medium rounded flex items-center gap-1 transition ${
+              title="自然日光模式 (5500K Daylight)"
+              className={`p-1.5 rounded transition ${
                 lightingPreset === 'natural_daylight'
-                  ? 'bg-sky-500/20 text-sky-300 border border-sky-500/40 font-bold'
+                  ? 'bg-sky-500/20 text-sky-300 border border-sky-500/40 shadow-sm'
                   : 'text-slate-400 hover:text-slate-200'
               }`}
             >
-              <SunMedium className="w-3 h-3 text-sky-300" />
-              <span>自然日光</span>
+              <SunMedium className="w-3.5 h-3.5 text-sky-300" />
             </button>
           </div>
 
           {/* Exposure Quick Toggle */}
           <button
             onClick={() => setExposureLevel(prev => (prev >= 1.7 ? 1.1 : prev + 0.3))}
-            title="调节画面曝光亮度"
-            className="px-2 py-1 text-[11px] font-mono rounded bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition flex items-center gap-1"
+            title="调节视口曝光亮度 (点击循环切换)"
+            className="px-1.5 py-1 text-[11px] font-mono rounded bg-slate-800/80 hover:bg-slate-700 text-slate-200 border border-slate-700 transition flex items-center gap-1"
           >
             <Lightbulb className="w-3 h-3 text-yellow-400" />
             <span>{exposureLevel.toFixed(1)}x</span>
@@ -999,66 +996,73 @@ export const ThreeRobotViewer: React.FC<ThreeRobotViewerProps> = ({
 
           <div className="h-4 w-px bg-slate-800" />
 
+          {/* Viewport Display Toggles - Icon Only */}
           <button
             onClick={() => setShowAxes(!showAxes)}
-            className={`p-1.5 rounded text-xs flex items-center gap-1 transition ${
+            title={showAxes ? '隐藏三维坐标轴' : '显示三维坐标轴 (Axes)'}
+            className={`p-1.5 rounded transition ${
               showAxes ? 'bg-cyan-500/20 text-cyan-400 border border-cyan-500/30' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800'
             }`}
           >
             <Compass className="w-3.5 h-3.5" />
-            <span className="text-[11px] hidden sm:inline">坐标系</span>
           </button>
 
           <button
             onClick={() => setShowWireframe(!showWireframe)}
-            className={`p-1.5 rounded text-xs flex items-center gap-1 transition ${
+            title={showWireframe ? '关闭线框模式' : '开启线框渲染 (Wireframe)'}
+            className={`p-1.5 rounded transition ${
               showWireframe ? 'bg-cyan-500/20 text-cyan-400 border border-cyan-500/30' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800'
             }`}
           >
             <Box className="w-3.5 h-3.5" />
-            <span className="text-[11px] hidden sm:inline">线框</span>
           </button>
 
           <button
             onClick={() => setShowAngleLabels(!showAngleLabels)}
-            className={`p-1.5 rounded text-xs flex items-center gap-1 transition ${
+            title={showAngleLabels ? '隐藏关节数据 HUD' : '显示关节数据 HUD'}
+            className={`p-1.5 rounded transition ${
               showAngleLabels ? 'bg-cyan-500/20 text-cyan-400 border border-cyan-500/30' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800'
             }`}
           >
             <Layers className="w-3.5 h-3.5" />
-            <span className="text-[11px] hidden sm:inline">HUD</span>
           </button>
 
           <div className="h-4 w-px bg-slate-800" />
 
-          <button
-            onClick={() => applyCameraPreset('perspective')}
-            className={`px-2 py-1 text-[11px] font-medium rounded transition ${
-              cameraPreset === 'perspective' ? 'bg-slate-800 text-cyan-400' : 'text-slate-400 hover:text-slate-200'
-            }`}
-          >
-            透视
-          </button>
-          <button
-            onClick={() => applyCameraPreset('front')}
-            className={`px-2 py-1 text-[11px] font-medium rounded transition ${
-              cameraPreset === 'front' ? 'bg-slate-800 text-cyan-400' : 'text-slate-400 hover:text-slate-200'
-            }`}
-          >
-            正视
-          </button>
-          <button
-            onClick={() => applyCameraPreset('leftArm')}
-            className={`px-2 py-1 text-[11px] font-medium rounded transition ${
-              cameraPreset === 'leftArm' ? 'bg-slate-800 text-cyan-400' : 'text-slate-400 hover:text-slate-200'
-            }`}
-          >
-            左臂
-          </button>
+          {/* Camera Presets - Compact */}
+          <div className="flex items-center gap-0.5 bg-slate-950 p-0.5 rounded border border-slate-800">
+            <button
+              onClick={() => applyCameraPreset('perspective')}
+              title="3D 透视自由视角"
+              className={`px-1.5 py-0.5 text-[10px] font-semibold rounded transition ${
+                cameraPreset === 'perspective' ? 'bg-cyan-500/20 text-cyan-300' : 'text-slate-400 hover:text-slate-200'
+              }`}
+            >
+              3D
+            </button>
+            <button
+              onClick={() => applyCameraPreset('front')}
+              title="正前方视角 (Front View)"
+              className={`px-1.5 py-0.5 text-[10px] font-semibold rounded transition ${
+                cameraPreset === 'front' ? 'bg-cyan-500/20 text-cyan-300' : 'text-slate-400 hover:text-slate-200'
+              }`}
+            >
+              正视
+            </button>
+            <button
+              onClick={() => applyCameraPreset('leftArm')}
+              title="左臂特写侧视 (Side View)"
+              className={`px-1.5 py-0.5 text-[10px] font-semibold rounded transition ${
+                cameraPreset === 'leftArm' ? 'bg-cyan-500/20 text-cyan-300' : 'text-slate-400 hover:text-slate-200'
+              }`}
+            >
+              侧视
+            </button>
+          </div>
 
           <button
             onClick={() => applyCameraPreset('perspective')}
-            title="复位视角"
+            title="复位默认视角 (Reset Camera)"
             className="p-1.5 rounded text-slate-400 hover:text-slate-200 hover:bg-slate-800 transition"
           >
             <RotateCcw className="w-3.5 h-3.5" />

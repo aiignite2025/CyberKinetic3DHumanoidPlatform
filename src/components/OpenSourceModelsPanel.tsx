@@ -136,9 +136,10 @@ export const OpenSourceModelsPanel: React.FC<OpenSourceModelsPanelProps> = ({
                       e.stopPropagation();
                       handleApplyModel(meta);
                     }}
+                    title={isCurrent ? `当前已装载: ${meta.name}` : `切换至 ${meta.name} 开源构型`}
                     className={`px-2.5 py-1 rounded text-xs font-semibold transition ${
                       isCurrent
-                        ? 'bg-cyan-500 text-slate-950'
+                        ? 'bg-cyan-500 text-slate-950 shadow-sm shadow-cyan-500/20'
                         : 'bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700'
                     }`}
                   >
@@ -164,6 +165,7 @@ export const OpenSourceModelsPanel: React.FC<OpenSourceModelsPanelProps> = ({
               href={activeMeta.githubUrl}
               target="_blank"
               rel="noopener noreferrer"
+              title={`访问 ${activeMeta.name} 的官方 GitHub 开源仓库`}
               className="text-[10px] font-mono text-cyan-400 hover:text-cyan-300 flex items-center gap-1 bg-cyan-950/60 px-2 py-0.5 rounded border border-cyan-800/60 transition"
             >
               <span>GitHub 源码</span>

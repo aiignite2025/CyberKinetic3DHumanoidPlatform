@@ -92,10 +92,11 @@ export const RobotParamsPanel: React.FC<RobotParamsPanelProps> = ({
 
         <button
           onClick={() => applyPreset('standard')}
-          className="px-2 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-medium flex items-center gap-1 transition"
+          title="恢复标准人形默认几何尺寸与阻尼算法参数"
+          className="px-2 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700 text-xs font-medium flex items-center gap-1 transition shadow-sm"
         >
-          <RotateCcw className="w-3 h-3 text-cyan-400" />
-          <span>重置默认</span>
+          <RotateCcw className="w-3.5 h-3.5 text-cyan-400" />
+          <span>重置</span>
         </button>
       </div>
 

@@ -86,18 +86,20 @@ export const MqttPanel: React.FC<MqttPanelProps> = ({
         {config.connected ? (
           <button
             onClick={onDisconnect}
+            title="断开与 MQTT 硬件中继服务器的连接"
             className="px-2.5 py-1 rounded-lg bg-red-500/20 hover:bg-red-500/30 text-red-300 border border-red-500/30 text-xs font-medium flex items-center gap-1.5 transition"
           >
             <WifiOff className="w-3.5 h-3.5" />
-            <span>断开连接</span>
+            <span>断开</span>
           </button>
         ) : (
           <button
             onClick={onConnect}
+            title="启动 MQTT 实时硬件同步桥接"
             className="px-2.5 py-1 rounded-lg bg-cyan-500 hover:bg-cyan-400 text-slate-950 text-xs font-semibold flex items-center gap-1.5 shadow-lg shadow-cyan-500/20 transition"
           >
             <Wifi className="w-3.5 h-3.5" />
-            <span>启动同步桥</span>
+            <span>连接</span>
           </button>
         )}
       </div>
@@ -209,9 +211,11 @@ export const MqttPanel: React.FC<MqttPanelProps> = ({
           <button
             onClick={onSendPing}
             disabled={!config.connected}
-            className="text-[10px] font-mono px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700 transition disabled:opacity-40"
+            title="向物理机器人或仿真节点发送单帧校准与时序同步心跳包"
+            className="text-[10px] font-mono px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700 transition disabled:opacity-40 flex items-center gap-1"
           >
-            发送校准帧
+            <Send className="w-2.5 h-2.5 text-cyan-400" />
+            <span>校准帧</span>
           </button>
         </div>
 
