@@ -1,0 +1,10 @@
+{
+  "name": "CyberKinetic 3D Humanoid Teleoperation Platform",
+  "description": "3D humanoid robot digital twin with camera pose motion capture, servo motor kinematics, and MQTT remote teleoperation simulation.",
+  "requestFramePermissions": [
+    "camera"
+  ],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
